@@ -37,3 +37,9 @@ class DartsMatchDao:
         print('Insert attempted on ' + match.player1 + '    ' + str(self.rand))
 
         self.lock.release()
+
+    # Add waiting time
+    def update(self):
+        self.lock.acquire()
+
+        self.lock.release()

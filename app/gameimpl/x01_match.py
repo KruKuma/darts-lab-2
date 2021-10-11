@@ -1,5 +1,5 @@
 from service.match_service import MatchVisitTemplate
-from service.match_service import MatchManger
+from service.match_service import MatchManager
 from datatype.enums import DartMultiplier
 
 CHECKOUTS = {
@@ -15,18 +15,18 @@ CHECKOUTS = {
 STARTING_TOTAL = 501
 
 
-class X01Match(MatchManger, MatchVisitTemplate):
+class X01Match(MatchManager, MatchVisitTemplate):
 
     def __init__(self):
         super().__init__()
-        self.scores = []    # list of scores remaining parallel to players
+        self.scores = []  # list of scores remaining parallel to players
         self.averages = []  # single-dart average (x 3 for 3-dart average)
-        self.first9 = []    # average for first 9 darts
+        self.first9 = []  # average for first 9 darts
 
-    # This has the potential to be buggy if the match is set first and players register after
+    # This has the potential to be buggy if the match is set first and players registered after
     def post_init(self):
         for i in range(0, len(self.match.players)):
-            self.scores.append(STARTING_TOTAL)  # Might want to parameterise the starting total
+            self.scores.append(STARTING_TOTAL)  # Might want to parameterize the starting total
             self.first9.append(None)
             self.averages.append(None)
 
@@ -43,8 +43,8 @@ class X01Match(MatchManger, MatchVisitTemplate):
     def check_winning_condition(self, player_index, visit):
         """
         returns 1, 2 or 3 for when a dart closes the game / leg (i.e. finishing double) or 0 if not closed out
-        :param player_index:  position of player details in various lists
-        :param visit: a list of 3 Darts (each conditioning multiplier and segment)
+        :param player_index: position of player details in various lists
+        :param visit: a list of 3 Darts (each containing multiplier and segment)
         :return: 0, 1, 2 or 3
         """
         i = 0
@@ -64,11 +64,10 @@ class X01Match(MatchManger, MatchVisitTemplate):
 
     def record_statistics(self, player_index, visit, result):
         """Store stats both for in-memory immediate use and on disk for later recall
-
         :return:
         """
         if result is not 0:
-            visit.remove_trailing_darts(result) # a double finished the game, so ignore any subsequent darts
+            visit.remove_trailing_darts(result)  # a double finished the game, so ignore any subsequent darts
 
         self.match.visits[player_index].append(visit)
 
@@ -87,9 +86,12 @@ class X01Match(MatchManger, MatchVisitTemplate):
         self.averages[player_index] = (STARTING_TOTAL - self.scores[player_index]) / num_darts_thrown
 
     def format_summary(self, player_index, visit):
-        # include suggested checkout if remaining core can be checked out in 3 darts
+        # Include suggested checkout if remaining score can be checked out in 3 darts
         summary = "Last visit was by " + self.match.players[player_index] + " with " + visit.to_string() + "\n"
-        + str(self.match.winning_num_darts) + " darts\n"
+
+        if self.match.winning_player_index is not -1:
+            summary += self.match.players[self.match.winning_player_index] + " wins in "\
+                      + str(self.match.winning_num_darts) + " darts\n"
 
         i = 0
         for player in self.match.players:
@@ -99,21 +101,19 @@ class X01Match(MatchManger, MatchVisitTemplate):
                 summary += " (" + CHECKOUTS.get(self.scores[i]) + ")"
 
             if self.first9[i]:
-                summary += "\n - [First 9 Avg: " + '{0:.2f}'.format(self.first9) + "] "
-
+                summary += "\n - [First 9 Avg: " + '{0:.2f}'.format(self.first9[i]) + "] "
             if self.averages[i]:
-                summary += "\n - [3-dart Avg: " + '{0:.2f}'.format(self.averages) + "] "
-
+                summary += "\n - [3-dart Avg: " + '{0:.2f}'.format(self.averages[i] * 3) + "] "
             i = i + 1
             summary += "\n"
 
-            return summary
+        return summary
 
 
 class X01MatchBuilder:
     """
-    This could be extended to include dynamic key-value pair parameters (see object_factory.py), or make it a
-    singleton, etc.
+    This could be extended to include dynamic key-value pair parameters (see object_factory.py),
+    or make it a singleton, etc.
     """
 
     def __init__(self):

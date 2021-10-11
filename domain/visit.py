@@ -3,10 +3,8 @@ from datatype.enums import DartMultiplier
 
 class Dart:
     def __init__(self, multiplier, segment):
-        self.multiplier = multiplier  # see datatype.enums.DataType; optionally create this as a property and
-        # validate
-
-        self.segment = segment  # 1 to 20, 0 for miss / double-bull / single-bull
+        self.multiplier = multiplier    # see datatype.enums.DartType; optionally create this as a property and validate
+        self.segment = segment   # 1 to 20, 0 for miss / double-bull / single-bull
 
     def get_score(self):
         return self.multiplier * self.segment
@@ -25,10 +23,10 @@ class Dart:
 
 class Visit:
     def __init__(self):
-        self.darts = []     # Limited to 3 Dart elements for most games
+        self.darts = []   # Limited to 3 Dart elements for most games
 
-    def __int__(self, darts):
-        self.darts = []     # Limited to 3 Dart elements for most games
+    def __init__(self, darts):
+        self.darts = []   # Limited to 3 Dart elements for most games
         self.add_darts(darts)
 
     def add_dart(self, dart):
